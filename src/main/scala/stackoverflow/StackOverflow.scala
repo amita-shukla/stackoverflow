@@ -109,7 +109,9 @@ class StackOverflow extends Serializable {
       highScore
     }
 
-    
+    grouped.values.map(iterable =>
+      (iterable.head._1,answerHighScore(iterable.map( _._2).toArray))
+    )
   }
 
 
