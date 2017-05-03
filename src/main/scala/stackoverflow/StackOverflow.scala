@@ -287,7 +287,12 @@ class StackOverflow extends Serializable {
   }
 
 
-
+  def calculateMedian(list : List[Int]) : Int = {
+    if(list.size%2!=0)
+      list{list.size-1/2}
+    else
+      (list{list.size/2}+list{(list.size/2)-1})/2
+  }
 
   //
   //
@@ -302,9 +307,9 @@ class StackOverflow extends Serializable {
       // most common language in the cluster
       val langLabel: String   = langs{vs.groupBy(_._1).map(pair => (pair._1/langSpread,pair._2)).maxBy(pair => pair._2.size)._1}
       // percent of the questions in the most common language
-      val langPercent: Double = ???
+      val langPercent: Double = (vs.groupBy(_._1).maxBy(_._2.size)._2.size/vs.size)*100
       val clusterSize: Int    = vs.size
-      val medianScore: Int    = ???
+      val medianScore: Int    = calculateMedian(vs.map(pair=>pair._2).toList.sorted)
 
       (langLabel, langPercent, clusterSize, medianScore)
     }
