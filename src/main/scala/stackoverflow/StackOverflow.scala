@@ -78,6 +78,7 @@ class StackOverflow extends Serializable {
 
   /** Group the questions and answers together */
   def groupedPostings(postings: RDD[Posting]): RDD[(Int, Iterable[(Posting, Posting)])] = {
+    //postings.cache()
     val questions = postings.filter( posting =>
       posting.postingType == 1
     ).map(posting =>
@@ -96,7 +97,7 @@ class StackOverflow extends Serializable {
 
   /** Compute the maximum score for each posting */
   def scoredPostings(grouped: RDD[(Int, Iterable[(Posting, Posting)])]): RDD[(Posting, Int)] = {
-
+    //grouped.cache()
     def answerHighScore(as: Array[Posting]): Int = {
       var highScore = 0
           var i = 0
@@ -117,6 +118,7 @@ class StackOverflow extends Serializable {
 
   /** Compute the vectors for the kmeans */
   def vectorPostings(scored: RDD[(Posting, Int)]): RDD[(Int, Int)] = {
+    //scored.cache()
     /** Return optional index of first language that occurs in `tags`. */
     def firstLangInTag(tag: Option[String], ls: List[String]): Option[Int] = {
       if (tag.isEmpty) None
@@ -191,7 +193,7 @@ class StackOverflow extends Serializable {
   @tailrec final def kmeans(means: Array[(Int, Int)], vectors: RDD[(Int, Int)], iter: Int = 1, debug: Boolean = false): Array[(Int, Int)] = {
     val newMeans = means.clone() // you need to compute newMeans
     // TODO: Fill in the newMeans array
-    val meansAssociatedWithPoints = vectors.map( point =>
+    val meansAssociatedWithPoints = vectors.cache().map( point =>
       (findClosest(point,means),point)
     )
 
@@ -290,10 +292,15 @@ class StackOverflow extends Serializable {
 
 
   def calculateMedian(list : List[Int]) : Int = {
-    if(list.size%2!=0)
-      list{list.size-1/2}
-    else
-      (list{list.size/2}+list{(list.size/2)-1})/2
+    val size = list.size
+    if((size%2)==0){
+      val l = (size/2)-1
+      val r = l+1
+      (list(l)+list(r))/2
+    }else{
+      list(size/2)
+    }
+      //(list(list.size/2)+list((list.size/2)+1))/2
   }
 
   //
